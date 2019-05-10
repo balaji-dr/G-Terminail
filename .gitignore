@@ -1,0 +1,8 @@
+sqlite.db
+.env
+client_id.json
+token.pickle
+happyenv/
+__pycache__/
+.pyc
+.idea/
