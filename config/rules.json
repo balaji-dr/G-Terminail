@@ -1,0 +1,13 @@
+{
+  "rule_predicate": ["all", "any"],
+  "string_predicate": ["contains", "does_not_contain", "equals", "does_not_equal"],
+  "date_predicate": {
+    "predicate": ["less_than", "greater_than"],
+    "unit": ["days", "months"]
+  },
+  "actions": {
+    "mark_as": ["READ", "UNREAD"],
+    "archive": ["INBOX"],
+    "add_label": ["+"]
+  }
+}
