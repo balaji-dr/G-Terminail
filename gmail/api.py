@@ -77,3 +77,83 @@ def get_all_mails_from_gmail() -> List:
             mails += messages
         request = service.users().messages().list_next(previous_request=request, previous_response=response)
     return mails
+
+
+def modify_message(service, user_id, msg_id, msg_labels):
+    """Modify the Labels on the given Message.
+
+    Args:
+    service: Authorized Gmail API service instance.
+    user_id: User's email address. The special value "me"
+    can be used to indicate the authenticated user.
+    msg_id: The id of the message required.
+    msg_labels: The change in labels.
+
+    Returns:
+    Modified message, containing updated labelIds, id and threadId.
+    """
+
+    try:
+        message = service.users().messages().modify(userId=user_id,
+                                                    id=msg_id, body=msg_labels).execute()
+
+        label_ids = message['labelIds']
+        return message
+    except errors.HttpError:
+        print('An error occurred:')
+
+
+def CreateLabel(service, user_id, label_object):
+  """Creates a new label within user's mailbox, also prints Label ID.
+
+  Args:
+    service: Authorized Gmail API service instance.
+    user_id: User's email address. The special value "me"
+    can be used to indicate the authenticated user.
+    label_object: label to be added.
+
+  Returns:
+    Created Label.
+  """
+  try:
+    label = service.users().labels().create(userId=user_id,
+                                            body=label_object).execute()
+    return label
+  except errors.HttpError:
+    print('An error occurred:')
+
+
+def MakeLabel(label_name, mlv='show', llv='labelShow'):
+  """Create Label object.
+
+  Args:
+    label_name: The name of the Label.
+    mlv: Message list visibility, show/hide.
+    llv: Label list visibility, labelShow/labelHide.
+
+  Returns:
+    Created Label.
+  """
+  label = {'messageListVisibility': mlv,
+           'name': label_name,
+           'labelListVisibility': llv}
+  return label
+
+
+def ListLabels(service, user_id):
+    """Get a list all labels in the user's mailbox.
+
+    Args:
+    service: Authorized Gmail API service instance.
+    user_id: User's email address. The special value "me"
+    can be used to indicate the authenticated user.
+
+    Returns:
+    A list all Labels in the user's mailbox.
+    """
+    try:
+        response = service.users().labels().list(userId=user_id).execute()
+        labels = response['labels']
+        return labels
+    except errors.HttpError:
+        print('An error occurred:')

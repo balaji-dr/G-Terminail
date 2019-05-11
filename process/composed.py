@@ -16,7 +16,7 @@ def extract_email_queryset() -> List:
 
 
 def print_n_emails(emails: List) -> None:
-    x = PrettyTable(border=False, padding_width=1)
+    x = PrettyTable(padding_width=1)
     x.field_names = COLUMNS
     for email in emails:
         x.add_row([email.get(column) for column in DB_COLUMNS])
@@ -59,3 +59,18 @@ def print_date_predicates():
     x.add_column("CHOICE", [1, 2])
     x.add_column("Predicate", ["less_than", "greater_than"])
     print(x)
+
+
+def print_mark_email_options():
+    x = PrettyTable()
+    x.add_column("CHOICE", [1, 2])
+    x.add_column("Label", ['READ', 'UNREAD'])
+    print(x)
+
+
+def print_actions():
+    x = PrettyTable()
+    x.add_column("CHOICE", [1, 2, 3])
+    x.add_column("ACTIONS", ['Mark as Read/UnRead', 'Archive', 'Add Label'])
+    print(x)
+

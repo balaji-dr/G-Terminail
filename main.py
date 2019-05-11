@@ -1,13 +1,10 @@
 from gmail import dump_to_db
 from process import composed
-from process.manager import RuleManager
+from process.manager import RuleManager, ProcessManager
 
-# dump_to_db.email_list_to_database()
-# composed.print_n_emails(n=5)
+dump_to_db.email_list_to_database()
 
-running = True
-
-while running:
+while True:
     manager = RuleManager()
     manager.load_rule_json("rules.json")
 
@@ -49,13 +46,28 @@ while running:
         else:
             break
 
-    # print(manager.query_dict)
-    # print(manager.predicate_dict)
-    # print(manager.date_unit)
-    # print(manager.rule_predicate)
-
     manager.apply_filters()
-    print(composed.print_n_emails(emails=manager.filtered_emails))
+    composed.print_n_emails(emails=manager.filtered_emails)
 
+    process = ProcessManager()
+    process.filtered_emails = manager.filtered_emails
+
+    composed.print_actions()
+    choice1 = input("Enter choice: ")
+
+    if choice1 == '1':
+        composed.print_mark_email_options()
+        choice2 = int(input("Enter choice: "))
+        process.perform_action(action=process.actions[int(choice1)-1])(process.mark_as_list[choice2-1])
+
+    elif choice1 == '3':
+        choice2 = input("Enter new label name: ")
+        process.perform_action(action=process.actions[int(choice1)-1])(choice2)
+
+    else:
+        print(process.actions[int(choice1)-1])
+        process.perform_action(action=process.actions[int(choice1)-1])()
+
+    composed.print_n_emails(emails=process.filtered_emails)
 
     break
