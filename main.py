@@ -1,30 +1,32 @@
 from gmail import dump_to_db
-from process import composed
+from process import composed, printinfo
 from process.manager import RuleManager, ProcessManager
+from config.settings import RULES
 
-dump_to_db.email_list_to_database()
+# dump_to_db.email_list_to_database()
 
 while True:
     manager = RuleManager()
-    manager.load_rule_json("rules.json")
 
-    composed.print_rule_predicate()
+    manager.rule_dict = RULES
+
+    printinfo.print_rule_predicate()
     choice = input("Enter choice: ")
     if choice == 'q':
         print("Good Bye :)")
         break
     if 0 < int(choice) < 3:
-        manager.rule_predicate = RuleManager.rule_dict["rule_predicate"][int(choice)-1]
+        manager.rule_predicate = manager.rule_dict["rule_predicate"][int(choice)-1]
     while True:
-        composed.print_string_fields()
+        printinfo.print_string_fields()
         choice1 = int(input("Enter choice: "))
 
         if choice1 == 5:
-            composed.print_date_units()
+            printinfo.print_date_units()
             choice3 = int(input("Enter choice: "))
             manager.date_unit = manager.date_unit_list[choice3-1]
 
-            composed.print_date_predicates()
+            printinfo.print_date_predicates()
             choice2 = int(input("Enter choice: "))
             manager.predicate_dict[manager.all_fields[choice1-1]] = \
                 manager.rule_dict["date_predicate"]["predicate"][choice2-1]
@@ -32,7 +34,7 @@ while True:
             query = int(input("Enter day/month difference: "))
             manager.query_dict[manager.all_fields[choice1-1]] = query
         else:
-            composed.print_field_predicates()
+            printinfo.print_field_predicates()
             choice2 = int(input("Enter choice: "))
             manager.predicate_dict[manager.all_fields[choice1 - 1]] = \
                 manager.rule_dict["string_predicate"][choice2 - 1]
@@ -47,16 +49,17 @@ while True:
             break
 
     manager.apply_filters()
-    composed.print_n_emails(emails=manager.filtered_emails)
+    printinfo.print_n_emails(emails=manager.filtered_emails)
 
     process = ProcessManager()
+
     process.filtered_emails = manager.filtered_emails
 
-    composed.print_actions()
+    printinfo.print_actions()
     choice1 = input("Enter choice: ")
 
     if choice1 == '1':
-        composed.print_mark_email_options()
+        printinfo.print_mark_email_options()
         choice2 = int(input("Enter choice: "))
         process.perform_action(action=process.actions[int(choice1)-1])(process.mark_as_list[choice2-1])
 
@@ -68,6 +71,6 @@ while True:
         print(process.actions[int(choice1)-1])
         process.perform_action(action=process.actions[int(choice1)-1])()
 
-    composed.print_n_emails(emails=process.filtered_emails)
+    printinfo.print_n_emails(emails=process.filtered_emails)
 
     break

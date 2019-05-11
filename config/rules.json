@@ -1,4 +1,5 @@
 {
+  "fields": ["from_address", "to_address", "subject", "message_body", "received_on"],
   "rule_predicate": ["all", "any"],
   "string_predicate": ["contains", "does_not_contain", "equals", "does_not_equal"],
   "date_predicate": {

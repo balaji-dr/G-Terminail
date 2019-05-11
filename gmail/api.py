@@ -79,7 +79,7 @@ def get_all_mails_from_gmail() -> List:
     return mails
 
 
-def modify_message(service, user_id, msg_id, msg_labels):
+def modify_message(service, user_id, msg_labels):
     """Modify the Labels on the given Message.
 
     Args:
@@ -94,10 +94,7 @@ def modify_message(service, user_id, msg_id, msg_labels):
     """
 
     try:
-        message = service.users().messages().modify(userId=user_id,
-                                                    id=msg_id, body=msg_labels).execute()
-
-        label_ids = message['labelIds']
+        message = service.users().messages().batchModify(userId=user_id, body=msg_labels).execute()
         return message
     except errors.HttpError:
         print('An error occurred:')

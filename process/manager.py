@@ -1,19 +1,18 @@
 from typing import Dict, List
-import json
-from model import ROOT_DIR
 import operator
 from process import composed, core
 from datetime import datetime
 from dateutil import relativedelta
 from gmail import api
+from config.settings import RULES
 
 
 class RuleManager:
 
-    all_fields = ["from_address", "to_address", "subject", "message_body", "received_on"]
+    all_fields = RULES["fields"]
     string_fields = ["from_address", "to_address", "subject", "message_body"]
     date_field = ["received_on"]
-    date_unit_list = ["days", "months"]
+    date_unit_list = RULES["date_predicate"]["unit"]
     rule_dict = {}
 
     def __init__(self):
@@ -25,26 +24,12 @@ class RuleManager:
         self.filtered_emails = []
 
     @staticmethod
-    def load_rule_json(json_filename: str) -> Dict:
-        with open(ROOT_DIR + "/config/" + json_filename, 'r') as json_file:
-            RuleManager.rule_dict = json.load(json_file)
-        json_file.close()
-        return RuleManager.rule_dict
-
-    @staticmethod
-    def rule_predicate_converter(predicate):
-        return {
-            "all": operator.and_,
-            "any": operator.or_
-        }[predicate]
-
-    @staticmethod
     def predicate_converter(predicate):
         return {
             "contains": operator.contains,
-            "does_not_contain": operator.not_(operator.contains),
+            "does_not_contain": operator.not_,
             "equals": operator.eq,
-            "does_not_equal": operator.is_not,
+            "does_not_equal": operator.ne,
             "less_than": operator.lt,
             "greater_than": operator.gt
         }[predicate]
@@ -86,26 +71,32 @@ class RuleManager:
 
 class ProcessManager:
 
-    actions = ["mark_as", "archive", "add_label"]
-    mark_as_list = ["READ", "UNREAD"]
+    actions = RULES["actions"].keys()
+    mark_as_list = RULES["actions"]["mark_as"]
 
     def __init__(self):
         self.filtered_emails = []
+        self.gmail_service = api.get_gmail_service()
 
-    def mark_read_unread(self, label) -> bool:
-        message_label_obj = {
+    @staticmethod
+    def get_message_label_object():
+        return {
             'removeLabelIds': [],
             'addLabelIds': []
         }
+
+    def mark_read_unread(self, label) -> bool:
+        message_label_obj = {**self.get_message_label_object()}
+        all_message_ids = []
         for email in self.filtered_emails:
             label_list: List = email['label'].split(',')
+            all_message_ids.append(email["message_id"])
             if label == "READ":
                 if "UNREAD" in label_list:
                     label_list.remove("UNREAD")
                     message_label_obj["removeLabelIds"].append("UNREAD")
                     email['is_read'] = True
-
-            if label == "UNREAD":
+            elif label == "UNREAD":
                 if "UNREAD" not in label_list:
                     label_list.append(label)
                     message_label_obj["addLabelIds"].append("UNREAD")
@@ -113,17 +104,15 @@ class ProcessManager:
             email['label'] = ",".join(label_list)
             core.update_email_label(message_id=email["message_id"], label=label)
             core.update_email_status(message_id=email["message_id"], label=label)
-            api.modify_message(service=api.get_gmail_service(),
-                               msg_id=email["message_id"], user_id="me",
-                               msg_labels=message_label_obj)
+            message_label_obj["ids"] = all_message_ids
+        composed.modify_email(message_label_obj=message_label_obj)
         return True
 
     def archive_mail(self) -> bool:
-        message_label_obj = {
-            'removeLabelIds': [],
-            'addLabelIds': []
-        }
+        message_label_obj = self.get_message_label_object()
+        all_message_ids = []
         for email in self.filtered_emails:
+            all_message_ids.append(email["message_id"])
             label_list: List = email['label'].split(',')
             if "INBOX" in label_list:
                 label_list.remove("INBOX")
@@ -133,9 +122,8 @@ class ProcessManager:
             email['is_archived'] = True
             core.update_email_label(message_id=email["message_id"], label=label)
             core.change_archive_status(message_id=email["message_id"], status=True)
-            api.modify_message(service=api.get_gmail_service(),
-                               msg_id=email["message_id"], user_id="me",
-                               msg_labels=message_label_obj)
+            message_label_obj["ids"] = all_message_ids
+        composed.modify_email(message_label_obj=message_label_obj)
         return True
 
     def add_custom_label(self, custom_label: str):
@@ -147,17 +135,17 @@ class ProcessManager:
                 'removeLabelIds': [],
                 'addLabelIds': [label_dict["id"]]
             }
+            all_message_ids = []
             for email in self.filtered_emails:
+                all_message_ids.append(email["message_id"])
                 label_list: List = email['label'].split(',')
                 if custom_label.upper() not in label_list:
                     label_list.append(custom_label.upper())
                 label = ','.join(label_list)
                 core.update_email_label(message_id=email["message_id"], label=label)
-
-                api.modify_message(service=api.get_gmail_service(),
-                                   msg_id=email["message_id"], user_id="me",
-                                   msg_labels=message_label_obj)
+                message_label_obj["ids"] = all_message_ids
                 email['label'] = label
+            composed.modify_email(message_label_obj=message_label_obj)
             return True
         else:
             label = self.create_custom_label(label_name=custom_label.upper())
@@ -165,23 +153,22 @@ class ProcessManager:
                 'removeLabelIds': [],
                 'addLabelIds': [label["id"]]
             }
+            all_message_ids = []
             for email in self.filtered_emails:
+                all_message_ids.append(email["message_id"])
                 label_list: List = email['label'].split(',')
                 if custom_label.upper() not in label_list:
                     label_list.append(custom_label.upper())
                 label = ','.join(label_list)
                 core.update_email_label(message_id=email["message_id"], label=label)
-
-                api.modify_message(service=api.get_gmail_service(),
-                                   msg_id=email["message_id"], user_id="me",
-                                   msg_labels=message_label_obj)
+                message_label_obj["ids"] = all_message_ids
                 email['label'] = label
+            composed.modify_email(message_label_obj=message_label_obj)
             return True
 
-    @staticmethod
-    def create_custom_label(label_name: str):
+    def create_custom_label(self, label_name: str):
         label_object = api.MakeLabel(label_name=label_name)
-        label = api.CreateLabel(service=api.get_gmail_service(), user_id='me', label_object=label_object)
+        label = api.CreateLabel(service=self.gmail_service, user_id='me', label_object=label_object)
         return label
 
     def perform_action(self, action):
