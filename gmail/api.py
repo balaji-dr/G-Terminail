@@ -4,7 +4,7 @@ from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from apiclient import errors
-from typing import List, Any
+from typing import List
 from config.settings import MAX_RESULTS_PER_PAGE, TOTAL_PAGES_TO_READ
 from model import ROOT_DIR
 
@@ -56,30 +56,38 @@ def get_message(msg_id: str, service, user_id='me'):
         message = service.users().messages().get(userId=user_id, id=msg_id).execute()
         return message
     except errors.HttpError as error:
-        print('An error occurred: %s' % error)
-        return 0
+        print(f'An error occurred: {error}')
 
 
 def get_all_mails_from_gmail() -> List:
-    mails = []
-    service = get_gmail_service()
-    emails = service.users().messages()
-    request = emails.list(userId='me', labelIds=['INBOX'], maxResults=MAX_RESULTS_PER_PAGE)
-    pages = 0
-    while request and pages <= TOTAL_PAGES_TO_READ-1:
-        response = request.execute()
-        pages += 1
-        messages = response.get('messages', [])
+    """
+    Get all the message objects from the user's account.
 
-        if not messages:
-            print("No messages found.")
-        else:
-            mails += messages
-        request = service.users().messages().list_next(previous_request=request, previous_response=response)
-    return mails
+    Returns:
+    A List of message objects.
+    """
+    try:
+        mails = []
+        service = get_gmail_service()
+        emails = service.users().messages()
+        request = emails.list(userId='me', labelIds=['INBOX'], maxResults=MAX_RESULTS_PER_PAGE)
+        pages = 0
+        while request and pages <= TOTAL_PAGES_TO_READ-1:
+            response = request.execute()
+            pages += 1
+            messages = response.get('messages', [])
+            if not messages:
+                print("No messages found.")
+            else:
+                mails += messages
+            request = service.users().messages().list_next(previous_request=request,
+                                                           previous_response=response)
+        return mails
+    except errors.HttpError as error:
+        print(f'An error occurred: {error}')
 
 
-def modify_message(service, user_id, msg_labels):
+def modify_message(msg_labels, service=get_gmail_service(), user_id='me'):
     """Modify the Labels on the given Message.
 
     Args:
@@ -96,48 +104,49 @@ def modify_message(service, user_id, msg_labels):
     try:
         message = service.users().messages().batchModify(userId=user_id, body=msg_labels).execute()
         return message
-    except errors.HttpError:
-        print('An error occurred:')
+    except errors.HttpError as e:
+        print(f'An error occurred: {e}')
 
 
-def CreateLabel(service, user_id, label_object):
-  """Creates a new label within user's mailbox, also prints Label ID.
+def create_label(service, user_id, label_object):
+    """Creates a new label within user's mailbox, also prints Label ID.
 
-  Args:
-    service: Authorized Gmail API service instance.
-    user_id: User's email address. The special value "me"
-    can be used to indicate the authenticated user.
-    label_object: label to be added.
+    Args:
+        service: Authorized Gmail API service instance.
+        user_id: User's email address. The special value "me"
+        can be used to indicate the authenticated user.
+        label_object: label to be added.
+    Returns:
+        Created Label.
+    """
+    try:
+        label = service.users().labels().create(userId=user_id,
+                                                body=label_object).execute()
+        return label
+    except errors.HttpError as e:
+        print(f'An error occurred: {e}')
 
-  Returns:
-    Created Label.
-  """
-  try:
-    label = service.users().labels().create(userId=user_id,
-                                            body=label_object).execute()
-    return label
-  except errors.HttpError:
-    print('An error occurred:')
 
+def make_label(label_name, mlv='show', llv='labelShow'):
+    """Create Label object.
 
-def MakeLabel(label_name, mlv='show', llv='labelShow'):
-  """Create Label object.
-
-  Args:
+    Args:
     label_name: The name of the Label.
     mlv: Message list visibility, show/hide.
     llv: Label list visibility, labelShow/labelHide.
 
-  Returns:
+    Returns:
     Created Label.
-  """
-  label = {'messageListVisibility': mlv,
-           'name': label_name,
-           'labelListVisibility': llv}
-  return label
+    """
+    label = {
+        'messageListVisibility': mlv,
+        'name': label_name,
+        'labelListVisibility': llv
+    }
+    return label
 
 
-def ListLabels(service, user_id):
+def list_labels(service, user_id):
     """Get a list all labels in the user's mailbox.
 
     Args:
@@ -152,5 +161,7 @@ def ListLabels(service, user_id):
         response = service.users().labels().list(userId=user_id).execute()
         labels = response['labels']
         return labels
-    except errors.HttpError:
-        print('An error occurred:')
+    except errors.HttpError as e:
+        print(f'An error occurred: {e}')
+
+# print(list_labels(service=get_gmail_service(), user_id="me"))

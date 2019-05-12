@@ -4,14 +4,12 @@ import base64
 import re
 from bs4 import BeautifulSoup
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.exc import SQLAlchemyError
+from apiclient import errors
 from typing import List, Dict
 from dateutil.parser import parse
 from progress.bar import Bar
 from config.settings import MAX_RESULTS_PER_PAGE, TOTAL_PAGES_TO_READ
-
-
-class DumpException(Exception):
-    ...
 
 
 DBSession = sessionmaker(bind=engine)
@@ -21,6 +19,13 @@ MIME_TYPES = ['multipart/alternative', 'multipart/mixed', 'multipart/related', '
 
 
 def parse_message_headers(headers: List) -> Dict:
+    """
+    Parse the headers of the email to extract only the required.
+    :param headers: The list of headers of an email message.
+    :type headers: list
+    :return: Dictionary of the header name and its value.
+    :rtype: dict
+    """
     header_dict = {}
     for header in headers:
         if header['name'] == 'Delivered-To':
@@ -35,7 +40,22 @@ def parse_message_headers(headers: List) -> Dict:
 
 
 def parse_message_payload(payload: Dict, message='', attachment=False) -> (str, bool):
+    """
+    Parses the Gmail API message body recursively by processing
+    based on the mime type of the object.
 
+    :param payload: Message object from Gmail API.
+    :type payload: dict
+
+    :param message: Email content.
+    :type message: str
+
+    :param attachment: Presence of an email attachment.
+    :type attachment: bool
+
+    :return: A tuple of the message and the presence of attachment.
+    :rtype: tuple
+    """
     if payload['mimeType'] == 'multipart/mixed' or payload['mimeType'] == 'multipart/alternative' \
             or payload['mimeType'] == 'multipart/related':
         parts_data = payload['parts']
@@ -45,11 +65,11 @@ def parse_message_payload(payload: Dict, message='', attachment=False) -> (str, 
                 message += temp
 
     elif payload['mimeType'] == 'text/plain' or payload['mimeType'] == 'text/html':
-        part_body = payload['body']  # fetching body of the message
-        part_data = part_body['data']  # fetching data from the body
-        clean_one = part_data.replace("-", "+")  # decoding from Base64 to UTF-8
-        clean_one = clean_one.replace("_", "/")  # decoding from Base64 to UTF-8
-        clean_two = base64.b64decode(bytes(clean_one, 'UTF-8'))  # decoding from Base64 to UTF-8
+        part_body = payload['body']
+        part_data = part_body['data']
+        clean_one = part_data.replace("-", "+")
+        clean_one = clean_one.replace("_", "/")
+        clean_two = base64.b64decode(bytes(clean_one, 'UTF-8'))
         soup = BeautifulSoup(clean_two, 'lxml')
         for s in soup(['script', 'style']):
             s.decompose()
@@ -62,7 +82,14 @@ def parse_message_payload(payload: Dict, message='', attachment=False) -> (str, 
 
 
 def email_list_to_database() -> None:
+    """
+    Get all the email objects from the Gmail API and parses it
+    to get the required fields and store it in the local database.
+    :return: None
+    """
     try:
+        session.query(Email).delete()
+        session.commit()
         bar = Bar('Processing', max=TOTAL_PAGES_TO_READ * MAX_RESULTS_PER_PAGE)
         service = api.get_gmail_service()
         all_emails = api.get_all_mails_from_gmail()
@@ -89,6 +116,5 @@ def email_list_to_database() -> None:
             bar.next()
         bar.finish()
         print("Successfully dumped email to database!")
-    except DumpException:
-        print("Check for database connection and retry.")
-
+    except (SQLAlchemyError, errors.HttpError) as e:
+        print(f"Database Syncing failed. Error is : {e}")

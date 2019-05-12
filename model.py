@@ -10,13 +10,13 @@ ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 def get_datetime():
+    """Returns the current datetime."""
     return datetime.now(tz=tz)
 
 
 class Email(Base):
     __tablename__ = 'email'
-    # Here we define columns for the table email
-    # Notice that each column is also a normal Python instance attribute.
+    # Columns for the table Email
     id = Column(Integer, primary_key=True, autoincrement=True)
     message_id = Column(String(250), nullable=False)
     from_address = Column(String(250), nullable=False)
@@ -47,6 +47,5 @@ class Email(Base):
 
 engine = create_engine(f'sqlite:///{ROOT_DIR}/sqlite.db')
 
-# Create all tables in the engine. This is equivalent to "Create Table"
-# statements in raw SQL.
+# Create all tables in the engine
 Base.metadata.create_all(engine)
