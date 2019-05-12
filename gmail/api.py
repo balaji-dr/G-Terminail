@@ -164,4 +164,20 @@ def list_labels(service, user_id):
     except errors.HttpError as e:
         print(f'An error occurred: {e}')
 
-# print(list_labels(service=get_gmail_service(), user_id="me"))
+
+def list_user_labels() -> List:
+    """
+    Get a list of all user created labels.
+    :return: List of label data.
+    """
+    try:
+        all_labels = list_labels(service=get_gmail_service(), user_id="me")
+        user_labels = [label for label in all_labels]
+        for label in user_labels[:]:
+            if label.get("type") != 'user':
+                user_labels.remove(label)
+        return user_labels
+    except errors.HttpError as e:
+        print(f"Error occured: {e}")
+
+# print(list_user_labels())

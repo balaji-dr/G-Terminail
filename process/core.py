@@ -1,8 +1,14 @@
 from model import Email, engine
 from sqlalchemy.orm import sessionmaker
 from typing import List
+from test import test_engine
+from config import settings
 
-DBSession = sessionmaker(bind=engine)
+if settings.TESTING:
+    DBSession = sessionmaker(bind=test_engine)
+else:
+    DBSession = sessionmaker(bind=engine)
+
 session = DBSession()
 
 

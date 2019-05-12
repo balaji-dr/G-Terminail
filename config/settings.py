@@ -8,6 +8,8 @@ ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 MAX_RESULTS_PER_PAGE = 10
 TOTAL_PAGES_TO_READ = 2
 
+TESTING = False
+
 
 def load_rule_json(json_filename: str) -> Dict:
     """

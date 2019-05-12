@@ -27,9 +27,9 @@ class Email(Base):
     label = Column(Text(), nullable=True)
     is_archived = Column(Boolean(), nullable=False)
     has_attachment = Column(Boolean(), default=False)
-    received_on = Column(DateTime(), nullable=False)
-    created_on = Column(DateTime(), nullable=False, default=get_datetime)
-    updated_on = Column(DateTime(), nullable=False, default=get_datetime, onupdate=get_datetime)
+    received_on = Column(DateTime(timezone=False), nullable=False)
+    created_on = Column(DateTime(timezone=True), nullable=False, default=get_datetime)
+    updated_on = Column(DateTime(timezone=True), nullable=False, default=get_datetime, onupdate=get_datetime)
 
     def __init__(self, message_id, from_address, to_address, subject,
                  message_body, is_read, label, is_archived, received_on, has_attachment):

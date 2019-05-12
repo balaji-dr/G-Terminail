@@ -136,6 +136,7 @@ class ProcessManager:
         :param label: READ/UNREAD - based on user choice.
         :return: None
         """
+
         message_label_obj = {**self.get_message_label_object()}
         all_message_ids = []
         for email in self.filtered_emails:
@@ -146,19 +147,19 @@ class ProcessManager:
                     label_list.remove("UNREAD")
                     message_label_obj["removeLabelIds"].append("UNREAD")
                     email['is_read'] = True
-                    label = ",".join(label_list)
+                    _label = ",".join(label_list)
                     email['label'] = label_list
-                    core.update_email_label(message_id=email["message_id"], label=label)
+                    core.update_email_label(message_id=email["message_id"], label=_label)
             elif label == "UNREAD":
                 if "UNREAD" not in label_list:
                     label_list.append(label)
                     message_label_obj["addLabelIds"].append("UNREAD")
                     email['is_read'] = False
-                    label = ','.join(label_list)
+                    _label = ','.join(label_list)
                     email['label'] = label_list
-                    core.update_email_label(message_id=email["message_id"], label=label)
+                    core.update_email_label(message_id=email["message_id"], label=_label)
             core.update_email_status(message_id=email["message_id"], label=label)
-            message_label_obj["ids"] = all_message_ids
+        message_label_obj["ids"] = all_message_ids
         api.modify_message(msg_labels=message_label_obj)
 
     def archive_mail(self):

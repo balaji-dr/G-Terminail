@@ -8,6 +8,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from apiclient import errors
 from typing import List, Dict
 from dateutil.parser import parse
+import pytz
 from progress.bar import Bar
 from config.settings import MAX_RESULTS_PER_PAGE, TOTAL_PAGES_TO_READ
 
@@ -35,7 +36,7 @@ def parse_message_headers(headers: List) -> Dict:
         if header['name'] == 'From':
             header_dict["from_address"] = header['value']
         if header['name'] == 'Date':
-            header_dict['received_on'] = parse(header['value'])
+            header_dict['received_on'] = parse(header['value']).astimezone(pytz.timezone('Asia/Calcutta'))
     return header_dict
 
 
@@ -81,6 +82,24 @@ def parse_message_payload(payload: Dict, message='', attachment=False) -> (str, 
     return message, attachment
 
 
+def convert_label_id(email_labels: List, all_labels: List) -> List:
+    """
+    Converts user created label ids to names.
+    :param email_labels: List of all labels of an email.
+    :param all_labels: List of all label from Gmail API of current user.
+    :return: List of converted label names.
+    """
+    label_names = []
+    for label in email_labels:
+        if '_' in label:
+            for each in all_labels:
+                if each.get("id", None) == label:
+                    label_names.append(each["name"])
+        else:
+            label_names.append(label)
+    return label_names
+
+
 def email_list_to_database() -> None:
     """
     Get all the email objects from the Gmail API and parses it
@@ -93,6 +112,7 @@ def email_list_to_database() -> None:
         bar = Bar('Processing', max=TOTAL_PAGES_TO_READ * MAX_RESULTS_PER_PAGE)
         service = api.get_gmail_service()
         all_emails = api.get_all_mails_from_gmail()
+        all_labels = api.list_user_labels()
         for email in all_emails:
             message = api.get_message(user_id="me", msg_id=email['id'], service=service)
             payload = message['payload']
@@ -101,6 +121,8 @@ def email_list_to_database() -> None:
             temp_dict['message_body'] = re.sub(r'[\t\r\n]', '', message_body)
             temp_dict['has_attachment'] = attachment
             temp_dict['message_id'] = message['id']
+            message['labelIds'] = convert_label_id(email_labels=message["labelIds"],
+                                                   all_labels=all_labels)
             temp_dict['label'] = ','.join(message['labelIds'])
             if 'INBOX' not in message['labelIds']:
                 temp_dict['is_archived'] = True
