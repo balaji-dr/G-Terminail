@@ -63,6 +63,17 @@ python3 main.py
 
 The web browser will open for OAuth for Gmail. Accepting it will show the menu in the terminal.
 
+##### Sample terminal output:
+```
++--------+-----------+
+| CHOICE | PREDICATE |
++--------+-----------+
+|   1    |    ALL    |
+|   2    |    ANY    |
+|   q    |    QUIT   |
++--------+-----------+
+Enter choice: 1
+```
 
 ## Running the tests
 
@@ -82,6 +93,17 @@ python3 test.py
 A new test database will be created to perform the tests.
 
 ##### NOTE : Never run test with main database. Set TESTING=True.
+
+##### Sample Test output:
+
+```
+(happyenv) bash-3.2$ python3 test.py
+.....
+----------------------------------------------------------------------
+Ran 5 tests in 0.038s
+
+OK
+```
 
 ## Further improvements (Not required by the given tasks.)
 

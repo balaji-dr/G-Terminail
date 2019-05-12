@@ -1,3 +1,7 @@
+"""
+Contains the database tables and it's structure.
+"""
+
 from sqlalchemy import Column, DateTime, Integer, String, Text, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime
