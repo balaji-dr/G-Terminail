@@ -8,6 +8,7 @@ ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 MAX_RESULTS_PER_PAGE = 10
 TOTAL_PAGES_TO_READ = 2
 
+# This will create new database for testing purpose.
 TESTING = False
 
 

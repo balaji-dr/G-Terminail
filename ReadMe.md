@@ -7,7 +7,7 @@ This project was given as an assignment for the backend developer role at HappyF
 This is a standalone python script that connects with Gmail API to filter and perform actions on 
 the emails based on certain rules.
 
-### Prerequisites
+### Pre-requisites
 
 ```
 Python 3.5 above
@@ -81,6 +81,7 @@ python3 test.py
 
 A new test database will be created to perform the tests.
 
+##### NOTE : Never run test with main database. Set TESTING=True.
 
 ## Further improvements (Not required by the given tasks.)
 
