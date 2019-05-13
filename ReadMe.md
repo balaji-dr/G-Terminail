@@ -105,9 +105,9 @@ Ran 5 tests in 0.038s
 OK
 ```
 
-## Further improvements (Not required by the given tasks.)
+## Further improvements (Not required for the given tasks.)
 
-* Database schema can be improved to store all fields of an email.
+* Database schema can be improved to make it scalable and store all fields of an email.
 * Pagination support to read emails can be added.
 * Mock tests for api requests can be written.
 

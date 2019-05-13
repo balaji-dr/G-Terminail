@@ -7,7 +7,7 @@ from process import composed, core
 test_engine = create_engine(f'sqlite:///{ROOT_DIR}/sqlite_test.db')
 
 
-class TestSum(unittest.TestCase):
+class TestEmail(unittest.TestCase):
 
     def setUp(self):
         DBSession = sessionmaker(bind=test_engine)
