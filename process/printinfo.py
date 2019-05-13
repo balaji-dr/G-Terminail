@@ -80,7 +80,7 @@ def print_main_menu():
     """Prints the main menu options as a table."""
     x = PrettyTable(padding_width=1)
     x.add_column("CHOICE", [1, 2, 3, 4, 5])
-    x.add_column("ACTIONS", ["RE-RUN", "VIEW SINGLE MAIL", "SYNC WITH GMAIL", "VIEW ALL EMAILS", "EXIT"])
+    x.add_column("ACTIONS", ["RE-RUN", "VIEW SINGLE MAIL", "SYNC WITH GMAIL", "VIEW ALL EMAILS", "EXIT (LOGOUT)"])
     print(x)
 
 

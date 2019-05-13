@@ -6,6 +6,8 @@ from gmail import dump_to_db
 from process import composed, printinfo
 from process.manager import RuleManager, ProcessManager
 from config.settings import RULES
+import os
+from model import ROOT_DIR
 
 
 def main() -> None:
@@ -105,6 +107,7 @@ def main() -> None:
             elif choice1 == 4:
                 printinfo.print_n_emails(emails=composed.extract_email_queryset())
             elif choice1 == 5:
+                os.remove(ROOT_DIR + "/token.pickle")
                 break
             continue
         except IndexError as e:
