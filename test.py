@@ -1,3 +1,10 @@
+"""
+Test file to perform unittests on some of the modules.
+This file can be extended to perform tests on all functions
+and also do integration tests.
+Coverage reports can be made from the tests using any
+third party package such as nose etc..
+"""
 import unittest
 from model import Email, create_engine, ROOT_DIR, Base
 from datetime import datetime
@@ -10,6 +17,7 @@ test_engine = create_engine(f'sqlite:///{ROOT_DIR}/sqlite_test.db')
 class TestEmail(unittest.TestCase):
 
     def setUp(self):
+        """Setup a test database and insert a dummy record."""
         DBSession = sessionmaker(bind=test_engine)
         Base.metadata.create_all(test_engine)
         session = DBSession()
