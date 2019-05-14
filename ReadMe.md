@@ -10,7 +10,7 @@ the emails based on certain rules.
 ### Pre-requisites
 
 ```
-Python 3.5 above
+Python 3.6 above
 SQLite
 Virtualenv
 ```
