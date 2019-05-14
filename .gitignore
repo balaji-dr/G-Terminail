@@ -1,4 +1,5 @@
 sqlite.db
+sqlite_test.db
 .env
 client_id.json
 token.pickle

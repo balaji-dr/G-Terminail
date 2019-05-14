@@ -63,16 +63,19 @@ python3 main.py
 
 The web browser will open for OAuth for Gmail. Accepting it will show the menu in the terminal.
 
-##### Sample terminal output:
+##### Sample terminal output menu:
 ```
-+--------+-----------+
-| CHOICE | PREDICATE |
-+--------+-----------+
-|   1    |    ALL    |
-|   2    |    ANY    |
-|   q    |    QUIT   |
-+--------+-----------+
-Enter choice: 1
+Successfully dumped email to database!
++--------+------------------------+
+| CHOICE |        ACTIONS         |
++--------+------------------------+
+|   1    | FILTER/PERFORM ACTIONS |
+|   2    |    VIEW SINGLE MAIL    |
+|   3    |    SYNC WITH GMAIL     |
+|   4    |    VIEW ALL EMAILS     |
+|   5    |     EXIT (LOGOUT)      |
++--------+------------------------+
+
 ```
 
 ## Running the tests

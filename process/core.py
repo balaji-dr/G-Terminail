@@ -3,6 +3,7 @@ from sqlalchemy.orm import sessionmaker
 from typing import List
 from test import test_engine
 from config import settings
+from config.settings import MAX_RESULTS_PER_PAGE
 
 # Checks if in Testing mode
 if settings.TESTING:
@@ -20,6 +21,12 @@ def get_all_emails():
     """
     all_email_objects = session.query(Email).all()
     return all_email_objects
+
+
+def paginate_query(page_no: int) -> List:
+    """Returns the database records from the given page number."""
+    queryset = session.query(Email).limit(MAX_RESULTS_PER_PAGE).offset(page_no * MAX_RESULTS_PER_PAGE).all()
+    return [x.__dict__ for x in queryset]
 
 
 def update_email_label(message_id: str, label: str) -> None:
@@ -76,3 +83,9 @@ def get_single_message_object(mail_id: int) -> Email:
     """
     message = session.query(Email).filter(Email.id == mail_id).first()
     return message
+
+
+def get_total_email_count() -> int:
+    """Returns the count of records in the Email table."""
+    count = session.query(Email).count()
+    return count

@@ -178,6 +178,4 @@ def list_user_labels() -> List:
                 user_labels.remove(label)
         return user_labels
     except errors.HttpError as e:
-        print(f"Error occured: {e}")
-
-# print(list_user_labels())
+        print(f"Error occurred: {e}")
