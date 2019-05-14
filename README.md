@@ -5,7 +5,8 @@ This project was given as an assignment for the backend developer role at HappyF
 ## Description
 
 This is a standalone python script that connects with Gmail API to filter and perform actions on 
-the emails based on certain rules.
+the emails based on certain rules. The user can fetch all the emails from their gmail account and store it in the local
+database. Filters can be applied on the stored emails and the actions like marking them as READ/UNREAD, Archiving, Adding new labels can be done through the terminal. Basically its a terminal version of Gmail.
 
 ### Pre-requisites
 
