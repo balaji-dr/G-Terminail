@@ -46,11 +46,14 @@ cd gmail
 ```
 
 In the settings.py in the config directory:
+ - TOTAL_PAGES_TO_READ - Total pages to read from gmail.
+ - MAX_RESULTS_PER_PAGE - Total email per page.
+ - TESTING - True to run tests, else False.
 
 ```
 # set value for 
 MAX_RESULTS_PER_PAGE = 10
-TOTAL_PAGES_TO_READ = 2
+TOTAL_PAGES_TO_READ = 3
 TESTING = False
 ```
 
@@ -111,7 +114,7 @@ OK
 ## Further improvements (Not required for the given tasks.)
 
 * Database schema can be improved to make it scalable and store all fields of an email.
-* Pagination support to read emails can be added.
+* Dynamic pagination can be added to reduce load time.
 * Mock tests for api requests can be written.
 
 
