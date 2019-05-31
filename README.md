@@ -1,6 +1,6 @@
-# Happy fox assignment
+# Terminal Gmail
 
-This project was given as an assignment for the backend developer role at HappyFox Inc.
+A simple Gmail client that runs in a Terminal.
 
 ## Description
 
