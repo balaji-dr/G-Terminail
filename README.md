@@ -1,6 +1,6 @@
-# Terminal Gmail
+# G-Terminail
 
-A simple Gmail client that runs in a Terminal.
+A simple Gmail client that runs in your Terminal.
 
 ## Description
 
