@@ -22,8 +22,8 @@ Open the terminal.
 
 Clone the repository
 ```
-git clone https://github.com/deeaarbee/happyfox-assignment
-cd happyfox-assignment
+git clone https://github.com/deeaarbee/G-Terminail
+cd G-Terminail
 ```
 
 Create virtual environment and activate
