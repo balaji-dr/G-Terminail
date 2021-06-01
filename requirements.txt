@@ -28,4 +28,4 @@ sqlalchemy-migrate==0.12.0
 sqlparse==0.3.0
 Tempita==0.5.2
 uritemplate==3.0.0
-urllib3==1.24.3
+urllib3==1.26.5
