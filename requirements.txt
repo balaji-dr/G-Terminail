@@ -9,7 +9,7 @@ google-auth-httplib2==0.0.3
 google-auth-oauthlib==0.3.0
 httplib2==0.12.3
 idna==2.8
-lxml==4.3.3
+lxml==4.9.1
 oauthlib==3.0.1
 pbr==5.2.0
 prettytable==0.7.2
